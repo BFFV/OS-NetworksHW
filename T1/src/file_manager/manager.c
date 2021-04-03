@@ -80,3 +80,5 @@ void input_file_destroy(InputFile* input_file)
   // Free the input_file itself
   free(input_file);
 }
+
+// TODO: write_file methods for output
