@@ -1,11 +1,14 @@
-#include <stdio.h>
-#include "crtree.h"
+#include "process.h"
 
 
 int main(int argc, char **argv) {
-  printf("Hello T1!\n");
-  // TODO:
-  // Call 'crtree' with the input path (returns crtree root id)
-  // Wait (crtree root id)
-  // Exit when crtree is done
+  // Check args
+  InputFile* file = read_file(argv[1]);
+  int pid = create_process(file, atoi(argv[2]));
+  if (pid) {
+    printf("Returned %d\n", pid);
+    //wait(NULL);
+    input_file_destroy(file);
+  }
+  return 0;
 }
