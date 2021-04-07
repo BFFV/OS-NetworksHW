@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <time.h>
 #include "../file_manager/manager.h"
 #pragma once
 
@@ -31,8 +32,10 @@ typedef struct Process {
 
 int create_process(InputFile* file, int index);
 
-void handle_worker(char* codename, char** args);
+void handle_worker(InputFile* file, int index);
 
-void handle_manager(InputFile* file, int timeout, int child_count, int* children);
+void handle_manager(InputFile* file, int index);
 
 void write_output(Process* process);
+
+int all_children_finish(int* children_pid, int n);
