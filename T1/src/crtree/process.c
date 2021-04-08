@@ -1,14 +1,7 @@
 #include "process.h"
 
 
-/*
-Por hacer:
-    - Como pasar las estadisticas desde un worker a un manager: cada worker escribe directo
-    en un archivo? - create_process y los handler retornan un string
-    - Timeout del manager -> Como manejar 
-
-*/
-
+// Create a new process
 int create_process(InputFile* file, int index) {
     int pid = fork();
     if (!pid) {
@@ -16,65 +9,88 @@ int create_process(InputFile* file, int index) {
         char* type_id = current_process[0];
         if (type_id[0] == 'W') {
             handle_worker(file, index);
-        } else if (type_id[0] == 'M') {
-            handle_manager(file, index);
         } else {
-            // call root function
-            printf("Manager Root\n");
+            handle_manager(file, index);
         }
-        // Evitamos volver al main, retornamos de inmediato
-        exit(0);
-    } else {
-        //pid_t exited = wait(NULL);
-        // printf("Child Exited: %d\n", exited);
     }
     return pid;
 }
 
+// Handle worker process workflow
 void handle_worker(InputFile* file, int index) {
     char** current_process = file->lines[index];
     char* exec_name = current_process[1];
     int n_args = atoi(current_process[2]);
-    char* args[n_args + 2];
+    char* args[n_args + 2]; // Program name + args
     args[0] = exec_name;
-    for (int i = 0; i < n_args;i++) {
+    for (int i = 0; i < n_args; i++) {
         args[i + 1] = current_process[3 + i];
     }
-    args[n_args + 1] = NULL;
-    // Esto lo hago para poder tener estadísticas
-    int pid = fork(); // Sera el hijo quien haga execvp
+    args[n_args + 1] = NULL; // For execvp convention
+
+    // Use a child process for program execution
+    int pid = fork();
     clock_t start = clock();
     if (!pid) {
-        exit(execvp(exec_name, args));
+        execvp(exec_name, args); // Program execution
     } else {
+        //kill(pid, SIGTERM); // TODO: Interruptions
+        //kill(pid, SIGKILL);
         int status;
         wait(&status);
+        int exit_code = WEXITSTATUS(status); // Exit code
         clock_t end = clock();
-        double time_spent = (double) (end -start) / CLOCKS_PER_SEC;
+        double time_spent = (double) (end - start) / CLOCKS_PER_SEC; // Execution time
 
+        // TODO: Write Output
     }
+    exit(0);
 }
 
+// Handle manager process workflow
 void handle_manager(InputFile* file, int index) {
     char** current_process = file->lines[index];
     int timeout = atoi(current_process[1]);
     int n_children = atoi(current_process[2]);
-    int* children = malloc(sizeof(int) * n_children);
-    int* children_pid = malloc(sizeof(int) * n_children);
-    for (int i = 0; i < n_children; i++) {
-        children[i] = atoi(current_process[3 + i]);
+    int n_active = n_children;
+    int* indexes = malloc(sizeof(int) * n_children); // File index for every child process
+    for (int c = 0; c < n_children; c++) {
+        indexes[c] = atoi(current_process[3 + c]);
     }
-    // Inicio el timer
-    int time_pid = fork();
-    if (!time_pid) {
-        sleep(timeout);
-        // Exit para no seguir bajando en el codigo
-        exit(0);
-    }
-    for (int index=0; index < n_children; index++) {
-        children_pid[index] = create_process(file, children[index]);
+    int* children = malloc(sizeof(int) * n_children); // Pid for every child process
+    for (int index = 0; index < n_children; index++) {
+        children[index] = create_process(file, indexes[index]);
     }
 
-    wait(NULL);
+    // Timer
+    int timer_pid = fork();
+    if (!timer_pid) {
+        sleep(timeout);
+        exit(0);
+    }
+
+    // Wait for children/timer
+    // TODO: Intercept signals (R/M)
+    bool monitoring = true;
+    while (monitoring) {
+        pid_t exited = wait(NULL);
+        if (exited == timer_pid) {
+            // TODO: Send signal for timeout
+            printf("Timeout Reached!\n");
+        } else {
+            n_active--;
+        }
+        if (!n_active) {
+            monitoring = false;
+        }
+    }
+
+    // TODO: Write output
+
+    // Free heap memory
+    free(indexes);
     free(children);
+    exit(0);
 }
+
+// TODO: Write Output functions
