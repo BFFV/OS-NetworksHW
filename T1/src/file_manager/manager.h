@@ -11,8 +11,10 @@ typedef struct inputfile {
   char*** lines;  // This is an array of arrays of strings
 } InputFile;
 
+
+char* concat(const char *s1, const char *s2);
+
 // Declare functions
 InputFile* read_file(char* filename);
 void input_file_destroy(InputFile* input_file);
-
-// TODO: write_file methods for output
+void write_output_file(char* filename, char*** lines, int line_count);

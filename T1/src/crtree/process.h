@@ -6,6 +6,7 @@
 #include <signal.h>
 #include <time.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../file_manager/manager.h"
 #pragma once
 
@@ -18,5 +19,3 @@ void handle_worker(InputFile* file, int index);
 
 // Handle manager process workflow
 void handle_manager(InputFile* file, int index);
-
-// TODO: Write Output functions

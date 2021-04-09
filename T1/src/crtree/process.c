@@ -12,6 +12,7 @@ int create_process(InputFile* file, int index) {
         } else {
             handle_manager(file, index);
         }
+        exit(0);
     }
     return pid;
 }
@@ -24,7 +25,9 @@ void handle_worker(InputFile* file, int index) {
     char* args[n_args + 2]; // Program name + args
     args[0] = exec_name;
     for (int i = 0; i < n_args; i++) {
-        args[i + 1] = current_process[3 + i];
+        char* arg = current_process[3 + i];
+        arg = strtok(arg, " \t\r\n\f\v"); // Strip
+        args[i + 1] = arg;
     }
     args[n_args + 1] = NULL; // For execvp convention
 
@@ -33,18 +36,38 @@ void handle_worker(InputFile* file, int index) {
     clock_t start = clock();
     if (!pid) {
         execvp(exec_name, args); // Program execution
-    } else {
-        //kill(pid, SIGTERM); // TODO: Interruptions
-        //kill(pid, SIGKILL);
-        int status;
-        wait(&status);
-        int exit_code = WEXITSTATUS(status); // Exit code
-        clock_t end = clock();
-        double time_spent = (double) (end - start) / CLOCKS_PER_SEC; // Execution time
-
-        // TODO: Write Output
     }
-    exit(0);
+
+    //kill(pid, SIGTERM); // TODO: Interruptions
+    //kill(pid, SIGKILL);
+
+    // Statistics
+    int status;
+    wait(&status);
+    int exit_code = WEXITSTATUS(status); // Exit code
+    clock_t end = clock();
+    double time_spent = (double) (end - start) / CLOCKS_PER_SEC; // Execution time
+
+    // Write worker output
+    char* output[n_args + 5];
+    for (int i = 0; i < n_args + 1; i++) {
+        output[i] = args[i];
+    }
+    int time_length = snprintf(NULL, 0, "%lf", time_spent); // Double to Str
+    char time_spent_string[time_length];
+    sprintf(time_spent_string, "%lf", time_spent);
+    output[n_args + 1] = time_spent_string;
+    int exit_length = snprintf(NULL, 0, "%d", exit_code); // Int to Str
+    char exit_string[exit_length];
+    sprintf(exit_string, "%d", exit_code);
+    output[n_args + 2] = exit_string;
+    output[n_args + 3] = "0";
+    output[n_args + 4] = NULL;
+    char** file_content[1] = { output };
+    int index_length = snprintf(NULL, 0, "%d", index); // Int to Str
+    char p_index[index_length];
+    sprintf(p_index, "%d", index);
+    write_output_file(p_index, file_content, 1); // Write output file
 }
 
 // Handle manager process workflow
@@ -90,7 +113,4 @@ void handle_manager(InputFile* file, int index) {
     // Free heap memory
     free(indexes);
     free(children);
-    exit(0);
 }
-
-// TODO: Write Output functions
