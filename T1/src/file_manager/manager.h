@@ -7,8 +7,8 @@
 
 // Define the struct
 typedef struct inputfile {
-  int len;
-  char*** lines;  // This is an array of arrays of strings
+    int len;
+    char*** lines;  // This is an array of arrays of strings
 } InputFile;
 
 
