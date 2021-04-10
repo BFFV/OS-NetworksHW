@@ -12,7 +12,7 @@
 
 
 // Create a new process
-int create_process(InputFile* file, int index);
+int create_process(InputFile* file, int index, int* indexes, int* children);
 
 // Handle worker process workflow
 void handle_worker(InputFile* file, int index);
@@ -25,6 +25,3 @@ void abort_worker(int signum);
 
 // SIGABRT handler for manager process
 void abort_manager(int signum);
-
-// SIGINT handler for root process
-void interrupt_root(int sigmun);

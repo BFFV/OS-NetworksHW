@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
     signal(SIGINT, handle_signals);
     signal(SIGABRT, handle_signals);
     InputFile* file = read_file(argv[1]);
-    tree = create_process(file, atoi(argv[2]));
+    tree = create_process(file, atoi(argv[2]), NULL, NULL);
     wait(NULL);
     tree = 0;
     input_file_destroy(file);
