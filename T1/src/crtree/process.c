@@ -1,5 +1,8 @@
 #include "process.h"
 
+// For signal handling
+volatile sig_atomic_t worker_child = 0;
+volatile sig_atomic_t interrupted = 0;
 
 // Create a new process
 int create_process(InputFile* file, int index) {
@@ -33,35 +36,42 @@ void handle_worker(InputFile* file, int index) {
 
     // Use a child process for program execution
     int pid = fork();
-    clock_t start = clock();
+    time_t start = time(NULL);
     if (!pid) {
         execvp(exec_name, args); // Program execution
     }
 
-    //kill(pid, SIGTERM); // TODO: Interruptions
-    //kill(pid, SIGKILL);
+    // Catch signals
+    worker_child = pid; // Save child pid for interruptions
+    signal(SIGINT, SIG_IGN);
+    signal(SIGABRT, abort_worker);
 
     // Statistics
     int status;
     wait(&status);
+    worker_child = 0; // Remove child pid for interruptions
+    char* interruption = "0"; // Check if process was interrupted
+    if (interrupted) {
+        interruption = "1";
+    }
     int exit_code = WEXITSTATUS(status); // Exit code
-    clock_t end = clock();
-    double time_spent = (double) (end - start) / CLOCKS_PER_SEC; // Execution time
+    time_t end = time(NULL);
+    int time_spent = end - start; // Execution time
 
     // Write worker output
     char* output[n_args + 5];
     for (int i = 0; i < n_args + 1; i++) {
         output[i] = args[i];
     }
-    int time_length = snprintf(NULL, 0, "%lf", time_spent); // Double to Str
+    int time_length = snprintf(NULL, 0, "%d", time_spent); // Double to Str
     char time_spent_string[time_length];
-    sprintf(time_spent_string, "%lf", time_spent);
+    sprintf(time_spent_string, "%d", time_spent);
     output[n_args + 1] = time_spent_string;
     int exit_length = snprintf(NULL, 0, "%d", exit_code); // Int to Str
     char exit_string[exit_length];
     sprintf(exit_string, "%d", exit_code);
     output[n_args + 2] = exit_string;
-    output[n_args + 3] = "0";
+    output[n_args + 3] = interruption;
     output[n_args + 4] = NULL;
     char** file_content[1] = { output };
     int index_length = snprintf(NULL, 0, "%d", index); // Int to Str
@@ -113,4 +123,12 @@ void handle_manager(InputFile* file, int index) {
     // Free heap memory
     free(indexes);
     free(children);
+}
+
+// SIGABRT handler for worker process
+void abort_worker(int signum) {
+    if (worker_child) {
+        kill(worker_child, SIGABRT);
+        interrupted = 1;
+    }
 }

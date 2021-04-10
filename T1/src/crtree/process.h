@@ -19,3 +19,12 @@ void handle_worker(InputFile* file, int index);
 
 // Handle manager process workflow
 void handle_manager(InputFile* file, int index);
+
+// SIGABRT handler for worker process
+void abort_worker(int signum);
+
+// SIGABRT handler for manager process
+void abort_manager(int signum);
+
+// SIGINT handler for root process
+void interrupt_root(int sigmun);
