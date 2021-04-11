@@ -12,7 +12,10 @@ void handle_signals(int signum) {
 
 // CR-Tree simulator
 int main(int argc, char **argv) {
-    // TODO: Check args
+    if (argc < 3) {
+        printf("[Error] Not enough arguments were provided!\n");
+        return 1;
+    }
     signal(SIGINT, handle_signals);
     signal(SIGABRT, handle_signals);
     InputFile* file = read_file(argv[1]);

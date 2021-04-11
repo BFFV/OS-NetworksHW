@@ -152,34 +152,30 @@ void handle_manager(InputFile* file, int index) {
     manager_child_count = 0;
     manager_children = NULL; // Stop pointing to children
 
-    // Write output
+    // Write manager output
     int index_length = snprintf(NULL, 0, "%d", index); // Int to Str
     char output_index[index_length];
-    char* buffer;
+    sprintf(output_index, "%d", index);
     long length;
-    FILE* output_file = fopen (strcat(output_file, ".txt"), "w");
+    FILE* output_file = fopen(strcat(output_index, ".txt"), "w");
     for (int i = 0; i < n_children; i++) {
         // Copy child output to buffer
-        int child_index_length = snprintf(NULL, 0, "%d", children[i]); // Int to Str
+        int child_index_length = snprintf(NULL, 0, "%d", indexes[i]); // Int to Str
         char child_index[child_index_length];
-        sprintf(child_index, "%d", children[i]);
-        FILE* child_file  = fopen (strcat(child_file, ".txt"), "r");
-        if (child_file) {
-            fseek (child_file, 0, SEEK_END);
-            length = ftell (child_file);
-            fseek (child_file, 0, SEEK_SET);
-            buffer = malloc (length);
-            if (buffer) {
-                fread (buffer, 1, length, child_file);
-            }
-        }
+        sprintf(child_index, "%d", indexes[i]);
+        FILE* child_file  = fopen(strcat(child_index, ".txt"), "r"); // Open child file
+        fseek(child_file, 0, SEEK_END);
+        length = ftell(child_file);
+        fseek(child_file, 0, SEEK_SET);
+        char* buffer = calloc(length + 1, sizeof(char));
+        fread(buffer, 1, length, child_file);
+
         // Copy buffer to outfile
         fputs(buffer, output_file);
-        fclose (child_file);
+        fclose(child_file);
         free(buffer);
     }
     fclose(output_file);
-
 
     // Free heap memory
     free(indexes);
