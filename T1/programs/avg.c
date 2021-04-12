@@ -3,18 +3,17 @@
 #include <unistd.h>
 
 
-
 int main(int argc, char **argv) {
     /*
     Input; n a_1 a_2 .... a_n
     */
-    int n = (int) argv[0];
+    int n = atoi(argv[1]);
     float total = 0;
-    int* array = calloc(n, sizeof(n));
-    for (int i = 0; i < n; i++) {
-        total += (int) argv[i + 1];
+    int* array = calloc(n, sizeof(int));
+    for (int i = 1; i < n + 1; i++) {
+        total += atoi(argv[i + 1]);
         sleep(1);
     }
-    printf("%f", total / n);
+    printf("%f\n", total / n);
     return 0;
 }

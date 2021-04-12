@@ -1,8 +1,0 @@
-7
-W,programs/hello_world,3,a,b,c
-M,20,2,2,4
-W,programs/hello_world,3,d,e,f
-M,50,2,0,1
-W,programs/hello_world,0
-R,100,2,3,6
-W,programs/hello_world,3,l,o,l

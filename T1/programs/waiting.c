@@ -3,14 +3,7 @@
 #include <unistd.h>
 
 
-
 int main(int argc, char **argv) {
-    /*
-    Input; n a_1 a_2 .... a_n
-    */
-    printf("Ingresa un variable: ");
-    char a;
-    scanf("%c", &a);
-    printf("\nIngresaste %c", a);
+    sleep(1000);
     return 0;
 }

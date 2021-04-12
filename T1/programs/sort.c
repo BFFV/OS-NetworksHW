@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+
 void sort(int* array, int n) {
     int aux;
     for (int i = 0; i < n; i++) {
@@ -21,14 +22,14 @@ int main(int argc, char **argv) {
     /*
     Input; n a_1 a_2 .... a_n
     */
-    int n = (int) argv[0];
-    int* array = calloc(n, sizeof(n));
+    int n = atoi(argv[1]);
+    int* array = calloc(n, sizeof(int));
     for (int i = 0; i < n; i++) {
-        array[i] = (int) argv[i + 1];
+        array[i] = atoi(argv[i + 2]);
     }
     sort(array, n);
     for (int i = 0; i < n; i++) {
-        printf("%d", array[i]);
+        printf("%d\n", array[i]);
     }
     return 0;
 }
