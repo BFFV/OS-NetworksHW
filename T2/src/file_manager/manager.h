@@ -7,10 +7,11 @@
 
 // Define the struct
 typedef struct inputfile {
-  int len;
-  char*** lines;  // This is an array of arrays of strings
+    int len;
+    char*** lines;  // This is an array of arrays of strings
 } InputFile;
 
 // Declare functions
 InputFile* read_file(char* filename);
 void input_file_destroy(InputFile* input_file);
+void write_output_file(char* filename, char*** lines, int line_count);
