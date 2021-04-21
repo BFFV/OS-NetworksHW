@@ -1,12 +1,12 @@
 #include "mlfq.h"
 
 // Create new process
-Process* create_process(char* process_info[6]) {
+Process* create_process(char** process_info) {
     Process* new_process = malloc(sizeof(Process));
 
     // Input data
     new_process->name = calloc(33, sizeof(char));
-    new_process->name = process_info[0];
+    strcpy(new_process->name, process_info[0]);
     new_process->pid = atoi(process_info[1]);
     new_process->start_time = atoi(process_info[2]);
     new_process->cycles = atoi(process_info[3]);
@@ -50,7 +50,7 @@ Process** load_processes(InputFile* file) {
 
 // Write output file
 void write_output(Process** processes, int quantity, char* filename) {
-    FILE* file = fopen(strcat(filename, ".csv"), "w");
+    FILE* file = fopen(filename, "w");
     for (int i = 0; i < quantity; i++) {
         Process* process = processes[i];
         char** process_info = malloc(6 * sizeof(char*));

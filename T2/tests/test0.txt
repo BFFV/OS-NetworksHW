@@ -1,8 +1,4 @@
-7
-W,./hello_world,3,a,b,c
-M,20,2,2,4
-W,./hello_world,3,d,e,f
-M,50,2,0,1
-W,./hello_world,0
-R,100,2,3,6
-W,./hello_world,3,l,o,l
+3
+Chrome 1 0 30 10 20
+Firefox 2 1 30 10 10
+Safari 3 2 30 5 8

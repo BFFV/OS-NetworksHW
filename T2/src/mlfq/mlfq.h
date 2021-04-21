@@ -47,7 +47,7 @@ typedef struct queue {
 } Queue;
 
 // Process functions
-Process* create_process(char* process_info[6]);
+Process* create_process(char** process_info);
 Process** load_processes(InputFile* file);
 void write_output(Process** processes, int quantity, char* filename);
 void destroy_processes(Process** processes, int quantity);

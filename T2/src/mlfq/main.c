@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
                 selected_process->exec_count++;
                 selected_process->executing = true;
                 if (selected_process->response == -1) {
-                    selected_process->response = t - cpu_exec->start_time;
+                    selected_process->response = t - selected_process->start_time;
                 }
                 cpu_exec = selected_process; // Process enters the CPU
             } else if (finished_counter == k) { // All processes are finished
