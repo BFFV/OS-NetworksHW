@@ -14,4 +14,4 @@ typedef struct inputfile {
 // Declare functions
 InputFile* read_file(char* filename);
 void input_file_destroy(InputFile* input_file);
-void write_output_file(char* filename, char*** lines, int line_count);
+void write_output_line(FILE* file, char** line, int info_count);

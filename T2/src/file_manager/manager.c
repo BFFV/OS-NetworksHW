@@ -79,16 +79,12 @@ void input_file_destroy(InputFile* input_file) {
 }
 
 // Write output file
-void write_output_file(char* filename, char*** lines, int line_count) {
-    FILE* file_pointer = fopen(strcat(filename, ".csv"), "w");
-    for (int index = 0; index < line_count; index++) {
-        for (int str = 0; lines[index][str] != NULL; str++) {
-            fputs(lines[index][str], file_pointer);
-            if (lines[index][str + 1] != NULL) {
-                fputs(",", file_pointer);
-            }
+void write_output_line(FILE* file, char** line, int info_count) {
+    for (int i = 0; i < info_count; i++) {
+        fputs(line[i], file);
+        if (i + 1 < info_count) {
+            fputs(",", file);
         }
-        fputs("\n", file_pointer);
     }
-    fclose(file_pointer);
+    fputs("\n", file);
 }

@@ -24,11 +24,37 @@ int main(int argc, char **argv) {
     int t = 0;
     int index = 0;
     bool running = true;
+    int finished_counter = 0;
     Process* cpu_exec = NULL;
 
     // Simulation
     while (running) {
-        // TODO: Re-enter processes that are done waiting, refreshing their wait
+
+        // Reset all queues
+        if (!S) {
+            S = atoi(argv[5]);
+            for (int i = 1; i < n_queues; i++) {
+                if (queue_array[i]->length) {
+                    merge(queue_array[i], queue_array[0]);
+                }
+            }
+        }
+
+        // Add waiting time & check processes in waiting
+        for (int p = 0; p < k; p++) {
+            Process* current_process = process_array[p];
+            if (current_process->start_time < t && !current_process->finished && !current_process->executing) { // Add waiting time
+                current_process->waiting_time++;
+            }
+            if (current_process->waiting) { // Check processes in waiting
+                current_process->wait--;
+                if (!current_process->wait) {
+                    current_process->waiting = false;
+                    current_process->wait = current_process->initial_wait;
+                    push(queue_array[current_process->current_queue], current_process);
+                }
+            }
+        }
 
         // Start new processes
         bool loading = true;
@@ -46,14 +72,28 @@ int main(int argc, char **argv) {
             cpu_exec->cycles--;
             cpu_exec->quantum--;
             if (!cpu_exec->cycles) { // Process is finished
+                finished_counter++;
+                cpu_exec->executing = false;
+                cpu_exec->finished = true;
+                cpu_exec->turnaround = t - cpu_exec->start_time;
                 cpu_exec = NULL;
             } else if (!cpu_exec->quantum) { // Process interruption
-                // TODO: Drop process 1 queue
+                if (cpu_exec->current_queue < n_queues - 1) {
+                    cpu_exec->current_queue++;
+                }
+                cpu_exec->int_count++;
+                cpu_exec->executing = false;
+                push(queue_array[cpu_exec->current_queue], cpu_exec);
                 cpu_exec = NULL;
             } else if (cpu_exec->initial_wait && cpu_exec->wait) { // Process I/O
                 cpu_exec->wait--;
-                if (!cpu_exec->wait) {
-                    // TODO: Move to Waiting
+                if (!cpu_exec->wait) { // Move to waiting
+                    if (cpu_exec->current_queue) {
+                        cpu_exec->current_queue--;
+                    }
+                    cpu_exec->executing = false;
+                    cpu_exec->wait = cpu_exec->waiting_delay;
+                    cpu_exec->waiting = true;
                     cpu_exec = NULL;
                 }
             }
@@ -71,20 +111,25 @@ int main(int argc, char **argv) {
                 Process* selected_process = pop(queue);
                 selected_process->quantum = (n_queues - queue->priority) * q;
                 selected_process->exec_count++;
+                selected_process->executing = true;
+                if (selected_process->response == -1) {
+                    selected_process->response = t - cpu_exec->start_time;
+                }
                 cpu_exec = selected_process; // Process enters the CPU
-            } else if (index == k) { // All processes are finished
+            } else if (finished_counter == k) { // All processes are finished
                 running = false;
             }
         }
 
         // Next tick
+        S--;
         t++;
     }
 
     // Write output & free memory
     destroy_queues(queue_array, n_queues);
     char* output_name = argv[2];
-    // TODO: Write output csv
+    write_output(process_array, k, output_name);
     destroy_processes(process_array, k);
 
     return 0;

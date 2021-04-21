@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "../file_manager/manager.h"
 #pragma once
 
@@ -23,9 +24,17 @@ struct process {
 
     // Simulation
     int quantum;
+    int current_queue;
+    bool waiting;
+    bool finished;
+    bool executing;
 
     // Statistics
     int exec_count;
+    int int_count;
+    int turnaround;
+    int response;
+    int waiting_time;
 
 };
 
@@ -40,10 +49,12 @@ typedef struct queue {
 // Process functions
 Process* create_process(char* process_info[6]);
 Process** load_processes(InputFile* file);
+void write_output(Process** processes, int quantity, char* filename);
 void destroy_processes(Process** processes, int quantity);
 
 // Queue functions
 Queue** create_queues(int n);
 void push(Queue* queue, Process* process);
+void merge(Queue* from, Queue* to);
 Process* pop(Queue* queue);
 void destroy_queues(Queue** queues, int quantity);
