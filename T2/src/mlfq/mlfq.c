@@ -99,34 +99,29 @@ Queue** create_queues(int n) {
 
 // Push new process to the queue
 void push(Queue* queue, Process* process) {
-    if (!queue->length) {
+    if (queue->head == NULL) {
         queue->head = process;
         queue->tail = process;
         queue->tail->next = NULL;
     } else {
-        Process* old_tail = queue->tail;
-        old_tail->next = process;
+        queue->tail->next = process;
         process->next = NULL;
         queue->tail = process;
     }
-    queue->length++;
+    if (!process->waiting) {
+        queue->length++;
+    }
 }
 
 // Merge two queues
 void merge(Queue* from, Queue* to) {
-    if (!to->length) {
-        to->tail = from->tail;
-        to->head = from->head;
-    } else {
-        to->tail->next = from->head;
-        to->tail = from->tail;
-    }
     Process* iterator = from->head;
     while (iterator != NULL) {
+        Process* next = iterator->next;
+        push(to, iterator);
         iterator->current_queue = 0;
-        iterator = iterator->next;
+        iterator = next;
     }
-    to->length += from->length;
     from->head = NULL;
     from->tail = NULL;
     from->length = 0;
@@ -135,16 +130,32 @@ void merge(Queue* from, Queue* to) {
 // Pop new process from the queue
 Process* pop(Queue* queue) {
     if (queue->length) {
-        queue->length--;
-        Process* first = queue->head;
-        queue->head = queue->head->next;
-        if (!queue->length) {
-            queue->tail = NULL;
+        Process* prev = queue->head;
+        Process* iterator = prev;
+        while (iterator != NULL) {
+            if (!iterator->waiting) {
+                if (iterator == prev) {
+                    queue->head = iterator->next;
+                    if (iterator->next == NULL) {
+                        queue->tail = NULL;
+                    }
+                    iterator->next = NULL;
+                    queue->length--;
+                    return iterator;
+                }
+                prev->next = iterator->next;
+                if (iterator->next == NULL) {
+                    queue->tail = prev;
+                }
+                iterator->next = NULL;
+                queue->length--;
+                return iterator;
+            }
+            prev = iterator;
+            iterator = iterator->next;
         }
-        return first;
-    } else {
-        return NULL;
     }
+    return NULL;
 }
 
 // Free memory from all queues

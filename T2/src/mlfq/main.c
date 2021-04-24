@@ -23,20 +23,22 @@ int main(int argc, char **argv) {
     Queue** queue_array = create_queues(n_queues);
     int t = 0;
     int index = 0;
-    bool running = true;
     int finished_counter = 0;
     Process* cpu_exec = NULL;
 
     // Simulation
-    while (running) {
+    while (finished_counter < k) {
+        printf("\nTick: %d\nS count: %d\n\n", t, S);
 
-        // Reset all queues
-        if (!S) {
-            S = atoi(argv[5]);
-            for (int i = 1; i < n_queues; i++) {
-                if (queue_array[i]->length) {
-                    merge(queue_array[i], queue_array[0]);
-                }
+        // Start new processes
+        bool loading = true;
+        while (loading && index < k) {
+            if (process_array[index]->start_time == t) {
+                push(queue_array[0], process_array[index]);
+                printf("Enter: %s\n", process_array[index]->name);
+                index++;
+            } else {
+                loading = false;
             }
         }
 
@@ -51,51 +53,50 @@ int main(int argc, char **argv) {
                 if (!current_process->wait) {
                     current_process->waiting = false;
                     current_process->wait = current_process->initial_wait;
-                    push(queue_array[current_process->current_queue], current_process);
+                    queue_array[current_process->current_queue]->length++;
+                    printf("Activate: %s\n", current_process->name);
                 }
-            }
-        }
-
-        // Start new processes
-        bool loading = true;
-        while (loading && index < k) {
-            if (process_array[index]->start_time == t) {
-                push(queue_array[0], process_array[index]);
-                index++;
-            } else {
-                loading = false;
             }
         }
 
         // CPU is busy
         if (cpu_exec != NULL) {
-            cpu_exec->cycles--;
-            cpu_exec->quantum--;
-            if (!cpu_exec->cycles) { // Process is finished
+            Process* exec_process = cpu_exec;
+            exec_process->cycles--;
+            exec_process->quantum--;
+            if (exec_process->initial_wait) {
+                exec_process->wait--;
+            }
+            if (!exec_process->cycles) { // Process is finished
                 finished_counter++;
-                cpu_exec->executing = false;
-                cpu_exec->finished = true;
-                cpu_exec->turnaround = t - cpu_exec->start_time;
+                exec_process->executing = false;
+                exec_process->finished = true;
+                exec_process->turnaround = t - exec_process->start_time;
                 cpu_exec = NULL;
-            } else if (!cpu_exec->quantum) { // Process interruption
-                if (cpu_exec->current_queue < n_queues - 1) {
-                    cpu_exec->current_queue++;
+                printf("Finished: %s\n", exec_process->name);
+            } else if (!exec_process->quantum) { // Process interruption
+                if (exec_process->current_queue < n_queues - 1) {
+                    exec_process->current_queue++;
                 }
-                cpu_exec->int_count++;
-                cpu_exec->executing = false;
-                push(queue_array[cpu_exec->current_queue], cpu_exec);
+                exec_process->int_count++;
+                exec_process->executing = false;
+                printf("Interrupted: %s with Wait time %d, enters queue %d\n", exec_process->name, exec_process->wait, exec_process->current_queue);
+                if (exec_process->initial_wait && !exec_process->wait) {
+                    exec_process->wait = cpu_exec->waiting_delay;
+                    exec_process->waiting = true;
+                }
                 cpu_exec = NULL;
-            } else if (cpu_exec->initial_wait && cpu_exec->wait) { // Process I/O
-                cpu_exec->wait--;
-                if (!cpu_exec->wait) { // Move to waiting
-                    if (cpu_exec->current_queue) {
-                        cpu_exec->current_queue--;
-                    }
-                    cpu_exec->executing = false;
-                    cpu_exec->wait = cpu_exec->waiting_delay;
-                    cpu_exec->waiting = true;
-                    cpu_exec = NULL;
+                push(queue_array[exec_process->current_queue], exec_process);
+            } else if (exec_process->initial_wait && !exec_process->wait) { // Process I/O
+                if (exec_process->current_queue) {
+                    exec_process->current_queue--;
                 }
+                exec_process->executing = false;
+                exec_process->wait = cpu_exec->waiting_delay;
+                exec_process->waiting = true;
+                cpu_exec = NULL;
+                push(queue_array[exec_process->current_queue], exec_process);
+                printf("Waiting: %s, enters queue %d\n", exec_process->name, exec_process->current_queue);
             }
         }
 
@@ -103,6 +104,7 @@ int main(int argc, char **argv) {
         if (cpu_exec == NULL) {
             Queue* queue = NULL;
             for (int i = 0; i < n_queues; i++) { // Get top queue that contains processes
+                printf("Queue %d contains %d processes\n", i, queue_array[i]->length);
                 if (queue == NULL && queue_array[i]->length) {
                     queue = queue_array[i];
                 }
@@ -116,9 +118,17 @@ int main(int argc, char **argv) {
                     selected_process->response = t - selected_process->start_time;
                 }
                 cpu_exec = selected_process; // Process enters the CPU
-            } else if (finished_counter == k) { // All processes are finished
-                running = false;
+                printf("Selected for CPU: %s\n", selected_process->name);
             }
+        }
+
+        // Reset all queues
+        if (!S) {
+            S = atoi(argv[5]);
+            for (int i = 1; i < n_queues; i++) {
+                merge(queue_array[i], queue_array[0]);
+            }
+            printf("After merge: Queue 0 contains %d processes\n", queue_array[0]->length);
         }
 
         // Next tick
