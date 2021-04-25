@@ -1,4 +1,4 @@
 3
-Chrome 1 0 30 10 20
-Firefox 2 1 30 10 10
-Safari 3 2 30 5 8
+Program 1 2 2 0 0
+Valgrind 2 0 2 0 0
+GCC 3 0 2 0 0

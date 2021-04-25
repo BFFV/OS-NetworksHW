@@ -72,6 +72,10 @@ int main(int argc, char **argv) {
                 exec_process->executing = false;
                 exec_process->finished = true;
                 exec_process->turnaround = t - exec_process->start_time;
+                if (!exec_process->quantum) {
+                    exec_process->int_count++;
+                    printf("-> Interrupted: %s (Finished)\n", exec_process->name);
+                }
                 cpu_exec = NULL;
                 printf("-> Finished: %s\n", exec_process->name);
             } else if (!exec_process->quantum) { // Process interruption
@@ -97,7 +101,7 @@ int main(int argc, char **argv) {
                 exec_process->waiting = true;
                 cpu_exec = NULL;
                 push(queue_array[exec_process->current_queue], exec_process);
-                printf("-> Waiting: %s, (Sleep time %d)\n", exec_process->name, exec_process->wait);
+                printf("-> Waiting: %s (Sleep time %d)\n", exec_process->name, exec_process->wait);
             }
         }
 

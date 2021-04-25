@@ -1,0 +1,8 @@
+Console commands for each test:
+
+0) ./mlfq tests/test0.txt output0.csv 3 5 15
+1) ./mlfq tests/test1.txt output1.csv 3 5 15
+2) ./mlfq tests/test2.txt output2.csv 4 5 15
+3) ./mlfq tests/test3.txt output3.csv 4 8 30
+4) ./mlfq tests/test4.txt output4.csv 6 3 300
+5) ./mlfq tests/test5.txt output5.csv 6 15 600
