@@ -28,14 +28,14 @@ int main(int argc, char **argv) {
 
     // Simulation
     while (finished_counter < k) {
-        printf("\n*** Tick: %d, S count: %d, Finished: %d/%d ***\n\n", t, S, finished_counter, k);
+        //printf("\n*** Tick: %d, S count: %d, Finished: %d/%d ***\n\n", t, S, finished_counter, k);
 
         // Start new processes
         bool loading = true;
         while (loading && index < k) {
             if (process_array[index]->start_time == t) {
                 push(queue_array[0], process_array[index]);
-                printf("-> New Process: %s\n", process_array[index]->name);
+                //printf("-> New Process: %s\n", process_array[index]->name);
                 index++;
             } else {
                 loading = false;
@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
                     current_process->waiting = false;
                     current_process->wait = current_process->initial_wait;
                     queue_array[current_process->current_queue]->length++;
-                    printf("-> Activated: %s (Wait time %d)\n", current_process->name, current_process->wait);
+                    //printf("-> Activated: %s (Wait time %d)\n", current_process->name, current_process->wait);
                 }
             }
         }
@@ -74,21 +74,21 @@ int main(int argc, char **argv) {
                 exec_process->turnaround = t - exec_process->start_time;
                 if (!exec_process->quantum) {
                     exec_process->int_count++;
-                    printf("-> Interrupted: %s (Finished)\n", exec_process->name);
+                    //printf("-> Interrupted: %s (Finished)\n", exec_process->name);
                 }
                 cpu_exec = NULL;
-                printf("-> Finished: %s\n", exec_process->name);
+                //printf("-> Finished: %s\n", exec_process->name);
             } else if (!exec_process->quantum) { // Process interruption
                 if (exec_process->current_queue < n_queues - 1) {
                     exec_process->current_queue++;
                 }
                 exec_process->int_count++;
                 exec_process->executing = false;
-                printf("-> Interrupted: %s (Wait time %d)\n", exec_process->name, exec_process->wait);
+                //printf("-> Interrupted: %s (Wait time %d)\n", exec_process->name, exec_process->wait);
                 if (exec_process->initial_wait && !exec_process->wait) {
                     exec_process->wait = cpu_exec->waiting_delay;
                     exec_process->waiting = true;
-                    printf("-> Waiting: %s (Sleep time %d)\n", exec_process->name, exec_process->wait);
+                    //printf("-> Waiting: %s (Sleep time %d)\n", exec_process->name, exec_process->wait);
                 }
                 cpu_exec = NULL;
                 push(queue_array[exec_process->current_queue], exec_process);
@@ -101,11 +101,12 @@ int main(int argc, char **argv) {
                 exec_process->waiting = true;
                 cpu_exec = NULL;
                 push(queue_array[exec_process->current_queue], exec_process);
-                printf("-> Waiting: %s (Sleep time %d)\n", exec_process->name, exec_process->wait);
+                //printf("-> Waiting: %s (Sleep time %d)\n", exec_process->name, exec_process->wait);
             }
         }
 
         // Debug queues & CPU
+        /*
         if (cpu_exec != NULL) {
             printf("\n * Running: %s\n", cpu_exec->name);
         } else {
@@ -127,6 +128,7 @@ int main(int argc, char **argv) {
             }
             printf("]\n");
         }
+        */
 
         // CPU can attend new process
         if (cpu_exec == NULL) {
@@ -145,7 +147,7 @@ int main(int argc, char **argv) {
                     selected_process->response = t - selected_process->start_time;
                 }
                 cpu_exec = selected_process; // Process enters the CPU
-                printf("\n-> Selected for CPU: %s (Wait: %d, Cycles: %d, Quantum: %d)\n", selected_process->name, selected_process->wait, selected_process->cycles, selected_process->quantum);
+                //printf("\n-> Selected for CPU: %s (Wait: %d, Cycles: %d, Quantum: %d)\n", selected_process->name, selected_process->wait, selected_process->cycles, selected_process->quantum);
             }
         }
 
@@ -155,7 +157,7 @@ int main(int argc, char **argv) {
             for (int i = 1; i < n_queues; i++) {
                 merge(queue_array[i], queue_array[0]);
             }
-            printf("\n-> Merged all queues!\n");
+            //printf("\n-> Merged all queues!\n");
         }
 
         // Next tick
