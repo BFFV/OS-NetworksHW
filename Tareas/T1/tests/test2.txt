@@ -1,0 +1,6 @@
+5
+M,1,4,1,2,3,4
+W,./crtree,2,tests/test2.txt,2
+W,./hello_world,1,XD
+W,./sort,6,5,5,2,1,4,3
+W,./waiting,0

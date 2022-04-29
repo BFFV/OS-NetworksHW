@@ -1,0 +1,14 @@
+13
+MergeSort 1 0 28 0 0
+QuickSort 2 0 25 0 0
+BubbleSort 3 0 35 0 0
+SelectionSort 4 0 45 0 0
+InsertionSort 5 0 45 0 0
+HeapSort 6 0 20 0 0
+BogoSort 7 0 100 0 0
+Excel 8 15 15 5 10
+VSCode 9 2 15 5 2
+Chrome 10 0 100 10 20
+Spotify 11 1 100 20 5
+PyCharm 12 8 50 5 2
+Movie 13 30 150 50 10

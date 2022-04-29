@@ -1,0 +1,7 @@
+6
+Excel 1 15 15 5 10
+VSCode 2 2 15 5 2
+Chrome 3 0 100 10 20
+Spotify 4 1 100 20 5
+PyCharm 5 8 50 5 2
+Movie 6 30 150 50 10

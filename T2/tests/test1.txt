@@ -1,4 +1,0 @@
-3
-Chrome 1 0 20 10 20
-Firefox 2 1 20 10 10
-Safari 3 2 20 5 8
