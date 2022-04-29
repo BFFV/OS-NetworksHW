@@ -57,6 +57,5 @@ dkms.conf
 # Assignment specific files
 *.csv
 *.json
-*.html
 report
 __pycache__
